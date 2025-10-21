@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>ĐĂNG KÝ THÔNG TIN POP-MART (Clone)</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        /* CSS cơ bản được viết lại để mô phỏng giao diện */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f2f2f2;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .ConScreen {
+            max-width: 900px;
+            margin: 20px auto;
+        }
+
+        .ConFields {
+            overflow: hidden;
+        }
+
+        /* Bố cục 2 cột cho logo và form */
+        .FormContainer {
+            padding: 10px;
+            background: #ffffff;
+            overflow: hidden;
+            box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .dvLeft {
+            flex: 1;
+            min-width: 300px;
+            padding: 15px;
+        }
+
+        .dvRight {
+            flex: 2;
+            min-width: 300px;
+            padding: 15px;
+            border-left: 1px solid #eee;
+        }
+
+        /* Placeholder cho Logo */
+        .LogoPlaceholder {
+            background: #f9f9f9;
+            border: 2px dashed #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 150px;
+            border-radius: 8px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #aaa;
+        }
+
+        .TieuDe {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .dvField1 {
+            margin-bottom: 15px;
+        }
+        
+        .FieldLabel {
+            text-align: left;
+            padding-left: 5px;
+            margin-bottom: 5px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* Định dạng chung cho input và select */
+        .MySelect,
+        .myTextBox {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box; /* Quan trọng để padding không làm vỡ layout */
+            font-size: 16px;
+        }
+        
+        .myTextBox {
+             border: 1px solid #da253475;
+             color: #121212;
+        }
+
+        /* Bảng ngày sinh */
+        .dob-table {
+            width: 100%;
+        }
+        .dob-table input {
+            width: 90% !important;
+        }
+        .dob-table td {
+            padding: 0 2px;
+            text-align: center;
+        }
+
+        /* Nút Đăng ký */
+        .MyButton {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #da2534;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            border: none;
+        }
+        .MyButton:hover {
+            background-color: #b01e2a;
+        }
+
+        /* Captcha */
+        .MyCaptcha {
+            background-size: 100% 100%;
+            text-align: center;
+            padding: 8px 3px;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            border: 2px solid #ddd;
+            width: 100px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 4px;
+            background: #f9f9f9;
+        }
+
+        .CaptchaRefresh {
+            height: 38px;
+            cursor: pointer;
+            margin-left: 5px;
+            color: #007bff;
+            text-decoration: underline;
+            font-weight: bold;
+            line-height: 38px;
+        }
+
+        /* Popup thông báo */
+        .form-popup {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .form-container {
+            background: #ffffff;
+            color: #f94c4c;
+            text-align: center;
+            border-radius: 10px;
+            padding: 20px;
+            min-width: 300px;
+            max-width: 400px;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .form-container-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+        }
+        .form-container-close:hover {
+            color: #000;
+        }
+
+        #dvNoiDungThongBao {
+            margin-top: 30px;
+            padding: 20px 10px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* QR Code area */
+        #qrcode {
+            width: 128px;
+            height: 128px;
+            margin: 20px auto 0;
+            border: 1px solid #ddd;
+            padding: 5px;
+        }
+
+        /* Bố cục responsive */
+        @media (max-width: 768px) {
+            .FormContainer {
+                flex-direction: column;
+            }
+            .dvRight {
+                border-left: none;
+                border-top: 1px solid #eee;
+            }
+        }
+    </style>
+</head>
+
+<body class="body" style="background: #f2f2f2;">
+    <form method="post" action="javascript:void(0);" onsubmit="DangKyThamDu(); return false;" id="ctl01">
+
+        <div class="ConScreen">
+            <div id="dvConFields" class="ConFields">
+                <div class="FormContainer">
+
+                    <div id="dvLeft" class="dvLeft">
+                        <div class="LogoPlaceholder">
+                            (Logo Placeholder)
+                        </div>
+                    </div>
+
+                    <div class="dvRight">
+                        <div id="dvConXacNhan" class="ConXacNhan" style="z-index: 9999 !important;">
+                            <div id="dvConXacNhan_Content">
+                                <div class="TieuDe">ĐĂNG KÝ THAM GIA</div>
+
+                                <div>
+                                    <div class="dvField1">
+                                        <div class="FieldLabel">Ngày bán hàng/Sales date</div>
+                                        <div>
+                                            <select name="slNgayBanHang" id="slNgayBanHang" onchange="LoadPhien()" class="MySelect">
+                                                <option selected="selected" value="">-- Chọn --</option>
+                                                <option value="69">22/10/2025</option>
+                                                <option value="70">23/10/2025</option>
+                                                <option value="71">24/10/2025</option>
+                                                <option value="72">25/10/2025</option>
+                                            </select>
+                                        </div>
+                                        <div id="dvGhiChuNgayBanHang" style="text-align: left;padding-left: 10px;margin-top: 3px;font-weight: bold;font-style: italic;font-size: 16px;"></div>
+                                    </div>
+                                    <div class="dvField1">
+                                        <div class="FieldLabel">Phiên/Session</div>
+                                        <div>
+                                            <select name="slPhien" id="slPhien" class="MySelect"></select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="dvFields" style="width: 100%;text-align: left; margin-top:15px">
+                                    <div class="dvField1">
+                                        <div class="FieldLabel">Họ & tên (có dấu)/Full name</div>
+                                        <div><input id="txtHoTen" placeholder="" type="text" class="myTextBox" autocomplete="off"></div>
+                                    </div>
+
+                                    <div class="dvField1" style="margin-top: 8px;">
+                                        <div class="FieldLabel">Ngày sinh/Date of birth</div>
+                                        <table class="dob-table">
+                                            <tr>
+                                                <td>
+                                                    <input id="txtNgaySinh_Ngay" placeholder="Ngày" type="number" class="myTextBox" autocomplete="off">
+                                                </td>
+                                                <td style="padding: 3px;color: #939393; font-size: 20px;">/</td>
+                                                <td>
+                                                    <input id="txtNgaySinh_Thang" placeholder="Tháng" type="number" class="myTextBox" autocomplete="off">
+                                                </td>
+                                                <td style="padding: 3px;color: #939393; font-size: 20px;">/</td>
+                                                <td>
+                                                    <input id="txtNgaySinh_Nam" placeholder="Năm" type="number" class="myTextBox" autocomplete="off">
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+
+                                    <div class="dvField1" style="margin-top: 8px;">
+                                        <div class="FieldLabel">Số điện thoại/Phone number</div>
+                                        <div><input id="txtSoDienThoai" placeholder="" type="text" class="myTextBox" autocomplete="off"></div>
+                                    </div>
+                                    <div class="dvField1" style="margin-top: 8px;">
+                                        <div class="FieldLabel">Email</div>
+                                        <div><input id="txtEmail" placeholder="" type="text" class="myTextBox" autocomplete="off"></div>
+                                    </div>
+                                    <div class="dvField1" style="margin-top: 8px;">
+                                        <div class="FieldLabel">CCCD,Hộ chiếu/ID Card,Passport</div>
+                                        <div><input id="txtCCCD" placeholder="" type="text" class="myTextBox" autocomplete="off"></div>
+                                    </div>
+
+                                    <div class="dvField1" style="margin-top: 8px;">
+                                        <table style="font-size: 17px;line-height: 23px;">
+                                            <tr>
+                                                <td style="vertical-align: top; padding-top: 5px;">
+                                                    <input id="ckbDongY" type="checkbox" style="width:23px; height:23px" />
+                                                </td>
+                                                <td style="font-weight: bold;text-align: left; padding-left: 10px;">
+                                                    <div>Tôi đã đọc và đồng ý với <a href='#' target="_blank" style="color: #f89d17;">Thể lệ chương trình</a></div>
+                                                    <div style="margin-top:4px">I have read and agree to the <a href='#' target="_blank" style="color: #f89d17;">Event Terms & Conditions</a></div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+
+                                    <div class="dvField1" style="margin-top: 8px; text-align:left">
+                                        <div id="dvConCaptcha" style="margin-top:10px">
+                                            <table style="width:100%">
+                                                <tr>
+                                                    <td style="width:100px;vertical-align: middle;">
+                                                        <div id="dvCaptcha" class="MyCaptcha">----</div>
+                                                    </td>
+                                                    <td style="width: 120px; padding-left: 10px;">
+                                                        <div style="text-align:left;">
+                                                            <input type="text" id="txtCaptcha" placeholder="Nhập captcha (*)" class="myTextBox" style="width: 110px!important;" autocomplete="off" />
+                                                        </div>
+                                                    </td>
+                                                    <td style="text-align: left;">
+                                                        <a href="javascript:LoadCaptcha()" class="CaptchaRefresh">[Làm mới]</a>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="dvDangKyThamDu" style="text-align:center;padding: 10px; margin-top:10px">
+                                    <button id="btDangKyThamGia" type="submit" class="MyButton" style="margin-top: 3px;">Đăng ký</button>
+                                </div>
+                                <div id="dvLoading" style="text-align:center;padding: 10px; margin-top:5px; display:none">
+                                    <strong style="font-size: 18px; color: #333;">Đang xử lý...</strong>
+                                </div>
+
+                            </div>
+                            <div id="dvTaoMaQR" style="display:none; text-align: center;">
+                                <div id="qrcode"></div>
+                                <div style="text-align: center; margin-top:10px">
+                                    <a id='qrdl' style="font-weight: bold;color: #4b9f4f;font-size: 17px;" download="Ma-QR-PopMart.png" href="#">Tải mã QR (Demo)</a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-popup" id="dvThongBao" style="display: none;">
+            <div class="form-container">
+                <div class="form-container-close" onclick="CloseThongBao()">X</div>
+                <div id="dvNoiDungThongBao" style="margin-top: 50px; padding: 20px 10px; font-weight: bold; font-size: 18px;">
+                    </div>
+            </div>
+        </div>
+
+    </form>
+
+    <script>
+        // --- PHẦN JAVASCRIPT ĐÃ ĐƯỢC CHỈNH SỬA ĐỂ CHẠY DEMO ---
+
+        // Hiển thị popup thông báo
+        function OpenThongBao() {
+            $("#dvThongBao").css("display", "flex");
+        }
+        
+        // Đóng popup thông báo
+        function CloseThongBao() {
+            $("#txtCaptcha").val("");
+            $("#dvThongBao").hide();
+            LoadCaptcha(); // Tải captcha mới sau khi đóng
+        }
+
+        // Tải Captcha (Phiên bản Demo)
+        function LoadCaptcha() {
+            // Tạo một số ngẫu nhiên 4 chữ số
+            var fakeCaptcha = Math.floor(1000 + Math.random() * 9000).toString();
+            $("#dvCaptcha").html(fakeCaptcha);
+        }
+
+        // Chạy khi trang tải xong
+        $(document).ready(function() {
+            LoadCaptcha();
+        });
+
+        // Hàm kiểm tra số
+        function isNumeric(str) {
+            if (typeof str != "string") return false;
+            return !isNaN(str) && !isNaN(parseFloat(str));
+        }
+
+        // Hàm kiểm tra email
+        function validateEmail(email) {
+            var re = /\S+@\S+\.\S+/;
+            return re.test(email);
+        }
+
+        // Tải Phiên (Phiên bản Demo)
+        function LoadPhien() {
+            var idNgayBanHang = $("#slNgayBanHang").val();
+            var html = "<option value=''>-- Chọn phiên --</option>";
+            if (idNgayBanHang != "") {
+                // Thêm các tùy chọn giả lập
+                html = "<option value='1'>Sáng (9:00 - 11:00)</option><option value='2'>Chiều (14:00 - 16:00)</option>";
+                $("#dvGhiChuNgayBanHang").html("Các phiên đăng ký giả lập đã tải.");
+            } else {
+                 $("#dvGhiChuNgayBanHang").html("");
+            }
+            $("#slPhien").html(html);
+        }
+
+        // Đăng ký tham dự (Phiên bản Demo)
+        function DangKyThamDu() {
+            var DongY = $("#ckbDongY").prop('checked');
+            
+            // 1. Kiểm tra Đồng ý điều khoản
+            if (DongY == false) {
+                var htmlTB = "<div>Bạn chưa đồng ý các điều khoản & điều kiện của chương trình!</div>";
+                htmlTB += "<div style='font-style:italic;margin-top: 5px;'>You have not agreed to the terms and conditions of the program!</div>";
+                $("#dvNoiDungThongBao").html(htmlTB);
+                OpenThongBao();
+                return; // Dừng hàm
+            }
+
+            // 2. Lấy giá trị từ form
+            var idNgayBanHang = $("#slNgayBanHang").val().trim();
+            var idPhien = $("#slPhien").val().trim();
+            var HoTen = $("#txtHoTen").val().trim();
+            var NgaySinh_Ngay = $("#txtNgaySinh_Ngay").val().trim();
+            var NgaySinh_Thang = $("#txtNgaySinh_Thang").val().trim();
+            var NgaySinh_Nam = $("#txtNgaySinh_Nam").val().trim();
+            var SoDienThoai = $("#txtSoDienThoai").val().trim();
+            var Email = $("#txtEmail").val().trim();
+            var CCCD = $("#txtCCCD").val().trim();
+            var Captcha = $("#txtCaptcha").val().trim();
+            var FakeCaptcha = $("#dvCaptcha").html().trim();
+
+            // 3. Kiểm tra thông tin bắt buộc
+            if (idNgayBanHang == "" || idPhien == "" || HoTen == "" || NgaySinh_Ngay == "" || NgaySinh_Thang == "" || NgaySinh_Nam == "" || SoDienThoai == "" || Email == "" || CCCD == "" || Captcha == "") {
+                var htmlTB = "<div>Bạn chưa nhập đủ thông tin bắt buộc!</div>";
+                htmlTB += "<div style='font-style:italic;margin-top: 5px;'>You have not entered all required information!</div>";
+                $("#dvNoiDungThongBao").html(htmlTB);
+                OpenThongBao();
+                return;
+            }
+
+            // 4. Kiểm tra Họ tên
+            if (HoTen.length < 3) {
+                var htmlTB = "<div>Họ tên không hợp lệ!</div>";
+                htmlTB += "<div style='font-style:italic;margin-top: 5px;'>Invalid name!</div>";
+                $("#dvNoiDungThongBao").html(htmlTB);
+                OpenThongBao();
+                return;
+            }
+
+            // 5. Kiểm tra Số điện thoại (kiểm tra đơn giản của VN)
+            var vnf_regex = /((09|03|07|08|05)+([0-9]{8})\b)/g;
+            if (vnf_regex.test(SoDienThoai) == false) {
+                var htmlTB = "<div>Số điện thoại không hợp lệ!</div>";
+                htmlTB += "<div style='font-style:italic;margin-top: 5px;'>Invalid phone number!</div>";
+                $("#dvNoiDungThongBao").html(htmlTB);
+                OpenThongBao();
+                return;
+            }
+
+            // 6. Kiểm tra Email
+            if (validateEmail(Email) == false) {
+                var htmlTB = "<div>Email không hợp lệ!</div>";
+                htmlTB += "<div style='font-style:italic;margin-top: 5px;'>Invalid email!</div>";
+                $("#dvNoiDungThongBao").html(htmlTB);
+                OpenThongBao();
+                return;
+            }
+
+            // 7. Kiểm tra Captcha (Demo)
+            if (Captcha != FakeCaptcha) {
+                 var htmlTB = "<div>Mã Captcha không chính xác!</div>";
+                htmlTB += "<div style='font-style:italic;margin-top: 5px;'>Invalid Captcha code!</div>";
+                $("#dvNoiDungThongBao").html(htmlTB);
+                OpenThongBao();
+                return;
+            }
+
+            // --- NẾU TẤT CẢ ĐỀU HỢP LỆ ---
+            // Ẩn nút đăng ký, hiển thị loading
+            $("#dvDangKyThamDu").css("display", "none");
+            $("#dvLoading").css("display", "");
+
+            // Giả lập thời gian chờ máy chủ phản hồi (1.5 giây)
+            setTimeout(function() {
+                // Ẩn loading, hiện lại nút
+                $("#dvDangKyThamDu").css("display", "");
+                $("#dvLoading").css("display", "none");
+
+                // --- Đây là phần mô phỏng thành công ---
+                var MaThamDu = "FAKE-" + Math.floor(10000 + Math.random() * 90000);
+                
+                var htmlKQ = "<div style='font-weight: bold;color: #329a36;font-size: 23px;margin-bottom: 5px;padding-left: 5px;text-align:center; margin-top:15px'>ĐĂNG KÝ THÀNH CÔNG (DEMO)</div>";
+                htmlKQ += "<div style='text-align: left; font-size: 16px; color: #333; margin-top: 15px;'>";
+                htmlKQ += "<strong>Lưu ý:</strong> Đây là bản clone demo. Không có dữ liệu nào được gửi đi.<br><br>";
+                htmlKQ += "<strong>Họ tên:</strong> " + HoTen + "<br>";
+                htmlKQ += "<strong>Ngày:</strong> " + $("#slNgayBanHang option:selected").text() + "<br>";
+                htmlKQ += "<strong>Phiên:</strong> " + $("#slPhien option:selected").text() + "<br>";
+                htmlKQ += "<strong>Mã tham dự giả lập:</strong> <strong>" + MaThamDu + "</strong></div>";
+
+                // Hiển thị thông báo thành công
+                $("#dvConXacNhan_Content").html(htmlKQ);
+                
+                // Hiển thị khu vực QR code
+                $("#dvTaoMaQR").css("display", "block");
+                $("#qrcode").html(""); // Xóa QR cũ nếu có
+                
+                // Tạo QR Code
+                var qrcode = new QRCode(document.getElementById("qrcode"), {
+                    text: MaThamDu,
+                    width: 128,
+                    height: 128,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+
+                // Cho phép tải QR về
+                // (Lưu ý: Chức năng "Tải về" này có thể không hoạt động tốt 100% khi chạy file local)
+                var canvas = $('#qrcode').find('canvas')[0];
+                if (canvas) {
+                    $('#qrdl').attr('href', canvas.toDataURL("image/png"));
+                }
+
+            }, 1500); // Hết hàm setTimeout
+        }
+    </script>
+</body>
+</html>

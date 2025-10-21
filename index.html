@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>ĐĂNG KÝ THÔNG TIN POP-MART (Clone)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Sử dụng font hệ thống vì font gốc không có sẵn */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        /* Căn chỉnh nội dung chính */
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Placeholder cho banner */
+        #dvBanner {
+            width: 100%;
+            max-width: 600px; /* Chiều rộng tối đa của banner */
+            height: 150px;    /* Chiều cao giả định */
+            background-color: #e0e0e0;
+            margin: 0 auto;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #999;
+            font-style: italic;
+        }
+
+        /* Định dạng văn bản */
+        .text-bold {
+            font-weight: bold;
+            margin-top: 20px;
+            font-size: 1.1em;
+        }
+
+        .text-italic {
+            font-style: italic;
+            color: #555;
+            margin-top: 5px;
+        }
+        
+        /* Định dạng số đếm ngược */
+        #dvCount {
+            margin-top: 20px;
+            font-size: 90px;
+            font-weight: bold;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="dvBanner">(Banner Image Placeholder)</div>
+        
+        <div class="text-bold">Bạn đang được chuyển đến trang đăng ký.</div>
+        <div class="text-italic">You are being redirected to the registration page.</div>
+        <div class="text-bold">Vui lòng đợi trong giây lát...</div>
+        <div class="text-italic">Please waiting a moment...</div>
+        
+        <div id="dvCount">30</div>
+    </div>
+
+    <script>
+        // Bắt đầu thực thi khi trang đã tải xong
+        window.onload = function() {
+            let countdownNumber = 30;
+            const countdownElement = document.getElementById('dvCount');
+            
+            // Cập nhật số đếm ngược mỗi giây
+            const timer = setInterval(function() {
+                countdownNumber--;
+                countdownElement.textContent = countdownNumber;
+                
+                // Khi đếm về 0, dừng lại và chuyển hướng
+                if (countdownNumber <= 0) {
+                    clearInterval(timer);
+                    countdownElement.textContent = "OK";
+                    // Chuyển hướng đến trang đăng ký
+                    // window.location.href = "https://popmartstt.com/popmart";
+                    window.location.href = "form.html";
+                }
+            }, 1000); // 1000 milliseconds = 1 giây
+        };
+    </script>
+
+</body>
+</html>

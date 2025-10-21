@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tool Mở Tab Đăng Ký Hàng Loạt</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 700px; text-align: center; }
+        h1 { color: #1c1e21; margin-top: 0; }
+        p { color: #606770; font-size: 16px; }
+        textarea { width: 100%; min-height: 150px; padding: 10px; font-size: 14px; border: 1px solid #dddfe2; border-radius: 8px; box-sizing: border-box; margin-top: 15px; }
+        button { background-color: #1877f2; color: white; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; border: none; margin-top: 20px; transition: background-color 0.3s; }
+        button:hover { background-color: #166fe5; }
+        #status { font-weight: bold; margin-top: 15px; color: #333; }
+        .warning { color: #fa383e; font-weight: bold; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tool Mở Tab Đăng Ký Hàng Loạt</h1>
+        <p>Dán danh sách người dùng vào ô bên dưới, sau đó nhấn nút để mở các tab đăng ký đã được điền sẵn thông tin.</p>
+        <p class="warning">Lưu ý: Hãy cho phép trình duyệt mở pop-up nếu bị chặn!</p>
+        <textarea id="userData" placeholder="Định dạng: Họ Tên,Ngày,Tháng,Năm,SĐT,Email,CCCD (mỗi người một dòng)"></textarea>
+        <button onclick="openRegistrationTabs()">Bắt đầu mở các tab đăng ký</button>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        // Đây là bản sao của giao diện form.html, dùng để tạo nội dung cho các tab mới.
+        const formTemplate = `
+            <!DOCTYPE html>
+            <html xmlns="http://www.w3.org/1999/xhtml">
+            <head>
+                <title>ĐĂNG KÝ THÔNG TIN POP-MART (Clone)</title>
+                <meta charset="UTF-8" />
+                <script src="https://code.jquery.com/jquery-3.6.0.min.js"><\/script>
+                <style>
+                    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background: #f2f2f2; margin: 0; padding: 20px; }
+                    .ConScreen { max-width: 900px; margin: 20px auto; }
+                    .FormContainer { padding: 10px; background: #ffffff; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.2); border-radius: 10px; display: flex; }
+                    .dvLeft { flex: 1; padding: 15px; } .dvRight { flex: 2; padding: 15px; border-left: 1px solid #eee; }
+                    .LogoPlaceholder { background: #f9f9f9; border: 2px dashed #ddd; display: flex; align-items: center; justify-content: center; height: 150px; border-radius: 8px; font-size: 24px; color: #aaa; }
+                    .TieuDe { font-size: 24px; font-weight: bold; margin-bottom: 20px; text-align: center; }
+                    .dvField1 { margin-bottom: 15px; } .FieldLabel { margin-bottom: 5px; font-size: 16px; font-weight: 600; }
+                    .MySelect, .myTextBox { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
+                    .myTextBox { border: 1px solid #da253475; }
+                    .dob-table { width: 100%; } .dob-table input { width: 90% !important; }
+                    .MyButton { padding: 12px 30px; background-color: #da2534; color: white; font-weight: bold; font-size: 18px; border-radius: 5px; cursor: pointer; border: none; }
+                    .MyCaptcha { text-align: center; padding: 8px; border-radius: 10px; font-size: 20px; font-weight: bold; border: 2px solid #ddd; width: 100px; height: 40px; display: flex; align-items: center; justify-content: center; letter-spacing: 4px; background: #f9f9f9; }
+                    .CaptchaRefresh { cursor: pointer; margin-left: 5px; color: #007bff; text-decoration: underline; }
+                </style>
+            </head>
+            <body>
+                <form method="post" action="javascript:alert('Đây là DEMO. Bạn cần giải CAPTCHA và nhấn nút thật trên trang gốc.');" id="ctl01">
+                    <div class="ConScreen"> <div class="FormContainer"> <div class="dvLeft"> <div class="LogoPlaceholder">(Logo)</div> </div> <div class="dvRight">
+                    <div class="TieuDe">ĐĂNG KÝ THAM GIA</div>
+                    <div class="dvField1"> <div class="FieldLabel">Ngày bán hàng</div> <select id="slNgayBanHang" class="MySelect">
+                        <option value="">-- Chọn --</option> <option value="69">22/10/2025</option> <option value="70">23/10/2025</option>
+                        <option value="71">24/10/2025</option> <option value="72">25/10/2025</option>
+                    </select> </div>
+                    <div class="dvField1"> <div class="FieldLabel">Phiên</div> <select id="slPhien" class="MySelect"><option value="1">Sáng (9:00 - 11:00)</option><option value="2">Chiều (14:00 - 16:00)</option></select> </div>
+                    <div class="dvField1"> <div class="FieldLabel">Họ & tên</div> <input id="txtHoTen" type="text" class="myTextBox"> </div>
+                    <div class="dvField1"> <div class="FieldLabel">Ngày sinh</div> <table class="dob-table"> <tr>
+                        <td><input id="txtNgaySinh_Ngay" placeholder="Ngày" type="number" class="myTextBox"></td> <td>/</td>
+                        <td><input id="txtNgaySinh_Thang" placeholder="Tháng" type="number" class="myTextBox"></td> <td>/</td>
+                        <td><input id="txtNgaySinh_Nam" placeholder="Năm" type="number" class="myTextBox"></td>
+                    </tr> </table> </div>
+                    <div class="dvField1"> <div class="FieldLabel">Số điện thoại</div> <input id="txtSoDienThoai" type="text" class="myTextBox"> </div>
+                    <div class="dvField1"> <div class="FieldLabel">Email</div> <input id="txtEmail" type="text" class="myTextBox"> </div>
+                    <div class="dvField1"> <div class="FieldLabel">CCCD/Hộ chiếu</div> <input id="txtCCCD" type="text" class="myTextBox"> </div>
+                    <div class="dvField1"> <table> <tr> <td><input id="ckbDongY" type="checkbox" style="width:23px; height:23px" checked></td> <td style="font-weight: bold; padding-left: 10px;">Tôi đã đọc và đồng ý với Thể lệ chương trình</td> </tr> </table> </div>
+                    <div class="dvField1"> <table> <tr>
+                        <td><div id="dvCaptcha" class="MyCaptcha">1234</div></td>
+                        <td><input type="text" placeholder="Nhập captcha" class="myTextBox" style="width: 120px!important; margin-left: 10px;"></td>
+                        <td><span class="CaptchaRefresh">[Làm mới]</span></td>
+                    </tr> </table> </div>
+                    <div style="text-align:center; padding: 10px; margin-top:10px"> <button type="submit" class="MyButton">ĐĂNG KÝ (BẠN CẦN NHẤN NÚT NÀY)</button> </div>
+                    </div> </div> </div>
+                </form>
+            </body>
+            </html>
+        `;
+
+        // Hàm chính để mở các tab
+        function openRegistrationTabs() {
+            const data = document.getElementById('userData').value.trim();
+            const statusDiv = document.getElementById('status');
+            
+            if (!data) {
+                statusDiv.textContent = "Lỗi: Vui lòng dán danh sách thông tin vào ô.";
+                statusDiv.style.color = 'red';
+                return;
+            }
+
+            const lines = data.split('\\n').filter(line => line.trim() !== "");
+            const people = lines.map(line => {
+                const parts = line.split(',');
+                return {
+                    name: parts[0] || '', day: parts[1] || '', month: parts[2] || '', year: parts[3] || '',
+                    phone: parts[4] || '', email: parts[5] || '', id: parts[6] || ''
+                };
+            });
+
+            if (people.length === 0) {
+                statusDiv.textContent = "Lỗi: Không tìm thấy dữ liệu hợp lệ.";
+                statusDiv.style.color = 'red';
+                return;
+            }
+            
+            const dates = [
+                { value: "69", text: "22/10/2025" }, { value: "70", text: "23/10/2025" },
+                { value: "71", text: "24/10/2025" }, { value: "72", text: "25/10/2025" }
+            ];
+
+            let count = 0;
+            // Vòng lặp cho mỗi người
+            people.forEach(person => {
+                // Vòng lặp cho mỗi ngày
+                dates.forEach(date => {
+                    // Mở một tab mới
+                    const newTab = window.open("", "_blank");
+                    if (newTab) {
+                        // Ghi nội dung form vào tab mới
+                        newTab.document.write(formTemplate);
+                        newTab.document.close();
+
+                        // Điền thông tin vào tab đó sau khi nó đã tải
+                        newTab.onload = function() {
+                            const doc = newTab.document;
+                            doc.title = `${person.name.trim()} - ${date.text}`;
+                            doc.getElementById('slNgayBanHang').value = date.value;
+                            doc.getElementById('slPhien').value = '1'; // Mặc định ca sáng
+                            doc.getElementById('txtHoTen').value = person.name.trim();
+                            doc.getElementById('txtNgaySinh_Ngay').value = person.day.trim();
+                            doc.getElementById('txtNgaySinh_Thang').value = person.month.trim();
+                            doc.getElementById('txtNgaySinh_Nam').value = person.year.trim();
+                            doc.getElementById('txtSoDienThoai').value = person.phone.trim();
+                            doc.getElementById('txtEmail').value = person.email.trim();
+                            doc.getElementById('txtCCCD').value = person.id.trim();
+                        };
+                        count++;
+                    }
+                });
+            });
+            
+            statusDiv.textContent = `Hoàn tất! Đã mở ${count} tab. Vui lòng kiểm tra và cho phép pop-up nếu cần.`;
+            statusDiv.style.color = 'green';
+        }
+    </script>
+</body>
+</html>
