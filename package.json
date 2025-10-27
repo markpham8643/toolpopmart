@@ -1,0 +1,25 @@
+{
+  "name": "banatool",
+  "version": "1.0.0",
+  "description": "",
+  "main": "automation.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/markpham8643-eng/toolpopmart.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/markpham8643-eng/toolpopmart/issues"
+  },
+  "homepage": "https://github.com/markpham8643-eng/toolpopmart#readme",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "dotenv": "^17.2.3",
+    "puppeteer": "^24.25.0"
+  }
+}
