@@ -32,11 +32,15 @@ async function registerPerson(browser, person) {
     const page = await browser.newPage();
 
     try {
-        // 1. Điều hướng đến trang đếm ngược (index.html)
-        const indexPath = path.resolve(__dirname, 'index.html');
-        await page.goto(`file://${indexPath}`);
-        console.log(` -> Đang ở trang đếm ngược cho ${person.name}...`);
+        // // 1. Điều hướng đến trang đếm ngược (index.html)
+        // const indexPath = path.resolve(__dirname, 'index.html');
+        // await page.goto(`file://${indexPath}`);
+        // console.log(` -> Đang ở trang đếm ngược cho ${person.name}...`);
 
+
+        // 1. Điều hướng đến trang web
+console.log(` -> Đang điều hướng đến trang web cho ${person.name}...`);
+await page.goto('https://thienpopmart.netlify.app/');
         // 2. Chờ trang tự động chuyển đến form.html
         await page.waitForNavigation({ timeout: 35000 }); // Chờ tối đa 35 giây
         console.log(` -> Đã chuyển đến trang form.html cho ${person.name}.`);
